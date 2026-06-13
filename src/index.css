@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Amiri:ital,wght@0,400..700;1,400..700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Cairo", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-serif: "Amiri", "Playfair Display", ui-serif, Georgia, serif;
+
+  --color-gold-50: #fefcf0;
+  --color-gold-100: #fdf5df;
+  --color-gold-200: #f9e9be;
+  --color-gold-300: #f4d591;
+  --color-gold-400: #edbb62;
+  --color-gold-500: #e29b35;
+  --color-gold-600: #c97c22;
+  --color-gold-700: #a75c1c;
+
+  --color-burgundy-50: #fdf2f4;
+  --color-burgundy-100: #fbe6ea;
+  --color-burgundy-200: #f7ced5;
+  --color-burgundy-300: #efabb7;
+  --color-burgundy-400: #e57d90;
+  --color-burgundy-500: #d45167;
+  --color-burgundy-600: #ba364c;
+  --color-burgundy-700: #9c273a;
+  --color-burgundy-850: rgb(75, 12, 23);
+  --color-burgundy-900: #621422;
+  --color-burgundy-950: #3b060f;
+}
+
+/* Custom scrollbar and premium elements */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fdfcf7;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4a373;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b5835a;
+}
+
+/* Elegant luxury page animation helper classes */
+.gold-glow {
+  text-shadow: 0 0 10px rgba(226, 155, 53, 0.2);
+}
+
+.lux-glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 155, 53, 0.15);
+}
+
+.lux-glass-dark {
+  background: rgba(59, 6, 15, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 155, 53, 0.2);
+}
