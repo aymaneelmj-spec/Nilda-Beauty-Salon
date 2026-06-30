@@ -8,6 +8,99 @@ export interface AiAdvisorProps {
   lang: Language;
 }
 
+/**
+ * Lightweight markdown → HTML renderer for chat bubbles.
+ * Handles: ## headings, **bold**, *italic*, - / * / 1. lists, --- hr, line breaks.
+ * Safe: only our own Gemini API content is rendered here.
+ */
+function renderMarkdown(text: string, isAi: boolean): string {
+  const boldColor = isAi ? 'color:rgb(253 224 180)' : 'font-weight:700';
+  
+  // Process line by line to handle lists properly
+  const lines = text.split('\n');
+  let html = '';
+  let inList = false;
+  let listType = '';
+
+  const flushList = () => {
+    if (inList) {
+      html += listType === 'ol' ? '</ol>' : '</ul>';
+      inList = false;
+      listType = '';
+    }
+  };
+
+  const processInline = (line: string): string => {
+    return line
+      // Bold: **text** or __text__
+      .replace(/\*\*(.+?)\*\*/g, `<strong style="${boldColor}">$1</strong>`)
+      .replace(/__(.+?)__/g, `<strong style="${boldColor}">$1</strong>`)
+      // Italic: *text* or _text_  (not preceded/followed by another * or _)
+      .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
+      .replace(/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/g, '<em>$1</em>');
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const trimmed = raw.trim();
+
+    // Skip fully empty lines — add spacing between blocks
+    if (trimmed === '') {
+      flushList();
+      html += '<div style="height:6px"></div>';
+      continue;
+    }
+
+    // Heading ## H2
+    if (/^#{1,3}\s/.test(trimmed)) {
+      flushList();
+      const headText = trimmed.replace(/^#{1,3}\s+/, '');
+      html += `<p style="font-weight:700;font-size:0.85em;margin-bottom:4px;${isAi ? 'color:rgb(251 207 232)' : ''}">${processInline(headText)}</p>`;
+      continue;
+    }
+
+    // Horizontal rule ---
+    if (/^(-{3,}|\*{3,})$/.test(trimmed)) {
+      flushList();
+      html += `<hr style="border:none;border-top:1px solid ${isAi ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)'};margin:6px 0"/>`;
+      continue;
+    }
+
+    // Unordered list: - item or * item
+    if (/^[-*•]\s/.test(trimmed)) {
+      if (!inList || listType !== 'ul') {
+        flushList();
+        html += '<ul style="margin:4px 0;padding-inline-start:18px;list-style:disc">';
+        inList = true;
+        listType = 'ul';
+      }
+      html += `<li style="margin-bottom:2px">${processInline(trimmed.replace(/^[-*•]\s+/, ''))}</li>`;
+      continue;
+    }
+
+    // Ordered list: 1. item
+    if (/^\d+\.\s/.test(trimmed)) {
+      if (!inList || listType !== 'ol') {
+        flushList();
+        html += '<ol style="margin:4px 0;padding-inline-start:18px">';
+        inList = true;
+        listType = 'ol';
+      }
+      html += `<li style="margin-bottom:2px">${processInline(trimmed.replace(/^\d+\.\s+/, ''))}</li>`;
+      continue;
+    }
+
+    // Regular paragraph
+    flushList();
+    html += `<p style="margin-bottom:4px">${processInline(trimmed)}</p>`;
+  }
+
+  flushList();
+  return html;
+}
+
+
+
 export default function AiAdvisor({ lang }: AiAdvisorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -109,7 +202,7 @@ export default function AiAdvisor({ lang }: AiAdvisorProps) {
       
       if (errMsgStr.includes("{") || errMsgStr.includes("}") || errMsgStr.includes("code") || errMsgStr.includes("503") || errMsgStr.includes("UNAVAILABLE") || errMsgStr.includes("error")) {
         displayMessage = isRtl
-          ? "نيلدا مشغولة حالياً مع ملكات أخريات في صالون الريان! يرجى الانتظار للحظة وإرسال استفساركِ ثانية، أو تواصلي لتنسيق موعد فيلا نيلدا المغلق عبر واتساب على الرقم ٧٠٣٧٧٠٧٦ ٩٧٤+!"
+          ? "نيلدا مشغولة حالياً مع ملكات أخريات في صالون  يرجى الانتظار للحظة وإرسال استفساركِ ثانية، أو تواصلي لتنسيق موعد فيلا نيلدا المغلق عبر واتساب على الرقم ٧٠٣٧٧٠٧٦ ٩٧٤+!"
           : "Nilda is currently speaking with many lovely ladies in Al-Rayyan, darling! Please wait a tiny moment and send your question again, or let us coordinate your private villa visit on WhatsApp at +974 7037 7076!";
       } else {
         displayMessage = errMsgStr;
@@ -209,21 +302,14 @@ export default function AiAdvisor({ lang }: AiAdvisorProps) {
                     )}
                     <div className={`max-w-[80%] rounded-2xl p-3.5 shadow-sm text-sm text-start ${
                       isAi 
-                        ? 'bg-white/8 text-rose-100 rounded-tl-none border border-white/5 whitespace-pre-line text-start' 
-                        : 'bg-gold-400 text-burgundy-950 rounded-tr-none font-medium text-start'
+                        ? 'bg-white/8 text-rose-100 rounded-tl-none border border-white/5' 
+                        : 'bg-gold-400 text-burgundy-950 rounded-tr-none font-medium'
                     }`}>
-                      {/* Bold replacement hack for simple rendering */}
-                      {m.content.split('\n').map((para, pIdx) => {
-                        // replace markdown bold **xxx** with bold tags
-                        const parts = para.split('**');
-                        return (
-                          <p key={pIdx} className={pIdx > 0 ? 'mt-1.5' : ''}>
-                            {parts.map((part, partIdx) => 
-                              partIdx % 2 === 1 ? <strong key={partIdx} className="font-bold text-white">{part}</strong> : part
-                            )}
-                          </p>
-                        );
-                      })}
+                      {/* Full markdown renderer */}
+                      <div
+                        className={`prose-chat ${isAi ? 'prose-chat-ai' : 'prose-chat-user'}`}
+                        dangerouslySetInnerHTML={{ __html: renderMarkdown(m.content, isAi) }}
+                      />
                       <span className={`block text-[9px] mt-1 text-right ${isAi ? 'text-rose-200/50' : 'text-burgundy-950/50'}`}>
                         {m.timestamp}
                       </span>

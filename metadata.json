@@ -1,6 +1,6 @@
 {
-  "name": "Nilda Beauty Salon",
-  "description": "A premium, luxurious ladies beauty salon website in Al-Rayyan, Qatar featuring automated bookings, WhatsApp integration, and a virtual AI styled beauty concierge.",
+  "name": "Beauty Salon",
+  "description": "A premium, luxurious ladies beauty salon website in Saudi Arabia featuring automated bookings, WhatsApp integration, and a virtual AI styled beauty concierge.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

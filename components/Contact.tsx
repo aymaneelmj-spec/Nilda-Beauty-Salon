@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, HelpCircle, ChevronDown, Compass, CheckCircle } from 'lucide-react';
-import { Language } from '../types';
+import { Language, ClientData } from '../types';
 import { translations } from '../data/translations';
 import { salonImages } from '../assets/images';
 
@@ -8,13 +8,22 @@ const GOOGLE_MAPS_URL = "https://www.google.com/maps/dir//Nilda+beauty+salon,+Al
 
 export interface ContactProps {
   lang: Language;
+  clientData?: ClientData | null;
 }
 
-export default function Contact({ lang }: ContactProps) {
+export default function Contact({ lang, clientData }: ContactProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const t = translations[lang];
   const isRtl = lang === 'ar';
+
+  // Dynamic contact info from clientData
+  const clientPhone   = clientData?.phone   || '';
+  const clientAddress = clientData?.address || '';
+  const clientCity    = clientData?.city    || '';
+  const displayPhone  = clientPhone ? `+${clientPhone}` : '+974 7037 7076';
+  const telLink       = clientPhone ? `tel:+${clientPhone}` : 'tel:+97470377076';
+  const displayAddress = clientAddress || (isRtl ? 'الريان، قطر' : 'Al-Rayyan, Qatar');
 
   const workingHours = [
     { 
@@ -136,7 +145,7 @@ export default function Contact({ lang }: ContactProps) {
                 <span className="text-[10px] uppercase font-mono text-neutral-400 block mb-1 text-start">
                   {t.call_desk}
                 </span>
-                <a href="tel:+97470377076" className="text-sm font-bold text-gold-700 hover:text-gold-600 transition font-mono block text-start">+974 7037 7076</a>
+                <a href={telLink} className="text-sm font-bold text-gold-700 hover:text-gold-600 transition font-mono block text-start">{displayPhone}</a>
               </div>
               <div className="text-start">
                 <span className="text-[10px] uppercase font-mono text-neutral-400 block mb-1 text-start">
@@ -155,7 +164,7 @@ export default function Contact({ lang }: ContactProps) {
                 <MapPin className="w-5 h-5 text-burgundy-600 shrink-0 mt-0.5" />
                 <div className="text-start">
                   <h3 className="font-serif text-neutral-900 text-lg font-bold text-start">{t.address_directions}</h3>
-                  <p className="text-sm text-neutral-500 font-light mt-0.5 text-start">{t.gated_villa_qatar}</p>
+                  <p className="text-sm text-neutral-500 font-light mt-0.5 text-start">{displayAddress}</p>
                 </div>
               </div>
               <p className="text-xs text-neutral-500 leading-relaxed font-light text-start">

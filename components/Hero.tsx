@@ -2,14 +2,15 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Calendar, MessageCircle, ArrowDown } from 'lucide-react';
 import { salonImages } from '../assets/images';
-import { Language } from '../types';
+import { Language, ClientData } from '../types';
 import { translations } from '../data/translations';
 
 export interface HeroProps {
   lang: Language;
+  clientData?: ClientData | null;
 }
 
-export default function Hero({ lang }: HeroProps) {
+export default function Hero({ lang, clientData }: HeroProps) {
   const scrollToBooking = () => {
     const element = document.getElementById('booking');
     if (element) {
@@ -23,6 +24,12 @@ export default function Hero({ lang }: HeroProps) {
   const t = translations[lang];
   const isRtl = lang === 'ar';
 
+  // Client-specific overrides
+  const clientName    = clientData?.name || '';
+  const clientPhone   = clientData?.phone || '';
+  const heroImage     = clientData?.images?.[0] || salonImages.interior;
+  const whatsappPhone = clientPhone ? clientPhone : '97470377076';
+
   return (
     <section id="hero" className="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-20 text-start">
       
@@ -31,8 +38,8 @@ export default function Hero({ lang }: HeroProps) {
         <div className="absolute inset-x-0 inset-y-0 bg-gradient-to-r from-burgundy-950/95 via-burgundy-900/80 to-transparent z-10" />
         <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-neutral-950/40 z-10" />
         <img 
-          src={salonImages.interior} 
-          alt="Nilda Beauty Salon Interior" 
+          src={heroImage} 
+          alt={clientName || 'Beauty Salon'} 
           className="w-full h-full object-cover"
           referrerPolicy="no-referrer"
         />
@@ -73,7 +80,7 @@ export default function Hero({ lang }: HeroProps) {
               <Calendar className="w-4 h-4 text-burgundy-950" /> {t.reserve_appointment}
             </button>
             <a
-              href="https://wa.me/97470377076?text=Hello%20Nilda%20Salon!%20I%20would%20like%20to%20inquire%20about%20your%20services%20and%20book%20a%20slot."
+              href={`https://wa.me/${whatsappPhone}`}
               target="_blank"
               rel="noopener noreferrer"
               className="py-4 px-8 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-white font-bold tracking-widest uppercase text-xs transition duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
@@ -116,16 +123,18 @@ export default function Hero({ lang }: HeroProps) {
             <div className="absolute bottom-3 right-3 w-4 h-4 border-b border-r border-gold-400/50"></div>
 
             <img 
-              src={salonImages.logo} 
-              alt="Nilda Beauty Logo" 
+              src={heroImage} 
+              alt={clientName || 'Salon'} 
               className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-gold-400/60 shadow-lg" 
               referrerPolicy="no-referrer"
             />
             
             <div>
-              <span className="font-mono text-gold-300 text-[10px] uppercase tracking-widest block mb-1">Nilda Beauty Salon</span>
-              <h2 className="font-serif text-2xl font-bold tracking-widest text-white uppercase leading-none">نيلدا بيوتي</h2>
-              <span className="text-xs uppercase text-rose-200 tracking-widest block mt-2">{t.qatari_villa}</span>
+              <span className="font-mono text-gold-300 text-[10px] uppercase tracking-widest block mb-1">{clientData?.niche || 'Beauty Salon'}</span>
+              <h2 className="font-serif text-xl font-bold tracking-widest text-white uppercase leading-tight">{clientName || 'نيلدا بيوتي'}</h2>
+              {clientData?.city && clientData.city !== 'all' && (
+                <span className="text-xs uppercase text-rose-200 tracking-widest block mt-2">{clientData.city}</span>
+              )}
             </div>
 
             <div className="bg-white/10 p-3.5 rounded-lg text-xs leading-normal text-rose-100/90 font-light italic text-center">

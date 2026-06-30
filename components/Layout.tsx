@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Phone, Calendar, Heart, MessageCircle, MapPin, Clock, AlignRight, X, ChevronUp, Lock } from 'lucide-react';
 import { salonImages } from '../assets/images';
-import { Language } from '../types';
+import { Language, ClientData } from '../types';
 import { translations } from '../data/translations';
 
 export interface LayoutProps {
@@ -12,6 +12,7 @@ export interface LayoutProps {
   isAdminOpen: boolean;
   lang: Language;
   setLang: (lang: Language) => void;
+  clientData?: ClientData | null;
 }
 
 export default function Layout({ 
@@ -21,11 +22,17 @@ export default function Layout({
   openAdmin, 
   isAdminOpen,
   lang,
-  setLang
+  setLang,
+  clientData
 }: LayoutProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+
+  // Dynamic phone/whatsapp from clientData, falls back to default Nilda number
+  const phone        = clientData?.phone || '97470377076';
+  const displayPhone = phone.startsWith('974') ? `+${phone}` : `+${phone}`;
+  const waLink       = `https://wa.me/${phone}`;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -86,10 +93,10 @@ export default function Layout({
         </span>
         <span className="hidden md:inline">|</span>
         <a 
-          href="tel:+97470377076" 
+          href={`tel:+${phone}`} 
           className="font-bold hover:text-white transition flex items-center gap-1"
         >
-          <Phone className="w-3" /> +974 7037 7076
+          <Phone className="w-3" /> {displayPhone}
         </a>
       </div>
 
@@ -208,7 +215,7 @@ export default function Layout({
               ))}
               <div className="pt-2 flex flex-col gap-3">
                 <a
-                  href="https://wa.me/97470377076?text=Hello%2C%20I%20would%20like%20to%20book%20an%20appointment%20with%20Nilda%20Beauty%20Salon."
+                  href={waLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="py-3 rounded-full text-xs font-bold tracking-widest uppercase bg-green-600 text-white flex items-center justify-center gap-2"
@@ -363,7 +370,7 @@ export default function Layout({
 
         {/* WhatsApp Sticky Floating Button */}
         <a
-          href="https://wa.me/97470377076?text=Hello%20Nilda%20Salon!%20I%20would%20like%20to%20book%20a%20luxury%20appointment%20treatment."
+          href={waLink}
           target="_blank"
           rel="noopener noreferrer"
           className="p-4 rounded-full bg-green-500 text-white shadow-2xl hover:bg-green-600 transition-all duration-300 hover:scale-110 transform flex items-center justify-center relative group"

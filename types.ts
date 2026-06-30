@@ -1,5 +1,18 @@
 export type Language = 'en' | 'ar';
 
+/** Matches a single entry in data.json — used for the ?id=N URL system */
+export interface ClientData {
+  name: string;
+  phone: string;
+  city: string;
+  country: string;
+  niche?: string;
+  address?: string;
+  images?: string[];       // parsed from comma-separated images string in data.json
+  currency?: string;       // e.g. "LYD", "SAR", "QAR" — auto-detected from country if absent
+}
+
+
 export interface Service {
   id: string;
   name: string;
